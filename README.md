@@ -1,14 +1,52 @@
 # myAuthWebApi
-A sample for header token authentication
+A sample for token-based authentication
 
 
 # Sample
 sample project:source/myAuthWebApi/*
 
-## Step 1. Add a New Class to handle auth 
+## Step 1. Add a New Class to handle auth token
+HeaderTokenAuthHandler
 ```
 
-HeaderTokenAuthHandler
+    public class HeaderTokenAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public HeaderTokenAuthHandler(
+            IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder,
+            ISystemClock clock)
+            : base(options, logger, encoder, clock)
+            {
+            }
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            if (!Request.Headers.ContainsKey("Header-Token"))
+            {
+                return Task.FromResult(AuthenticateResult.Fail("Missing Authorization Header"));
+            }
+
+            var authHeader = Request.Headers["Header-Token"].ToString();
+            if (authHeader != "your_password")
+            {
+                return Task.FromResult(AuthenticateResult.Fail("Invalid Authorization Header"));
+            }
+
+            var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier, "user_id"),
+            new Claim(ClaimTypes.Name, "mike"),
+        };
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+            return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
+    }
+```
+
+```
 
 builder.Services.AddAuthentication(options =>
 {
