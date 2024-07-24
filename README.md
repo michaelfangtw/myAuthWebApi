@@ -46,8 +46,10 @@ HeaderTokenAuthHandler
     }
 ```
 
-```
 
+## Step 2. program.cs to add swagger doc header
+```
+//add authenthication scheme
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = "HeaderTokenScheme";
@@ -55,8 +57,6 @@ builder.Services.AddAuthentication(options =>
 })
    .AddScheme<AuthenticationSchemeOptions, HeaderTokenAuthHandler>("HeaderTokenScheme", null);
 ```
-
-## Step 2. program.cs to add swagger doc header
 
 ```
 builder.Services.AddSwaggerGen(c =>
